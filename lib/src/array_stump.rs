@@ -6,6 +6,7 @@ pub struct Index {
     inner: usize,
 }
 
+
 impl Index {
     pub const FIRST: Index = Index{outer: 0, inner: 0};
 
@@ -344,7 +345,13 @@ where
             println!("-- BLOCK #{} ({}/{} elements)", idx, block.len(), block.capacity());
             for value in block {
                 if let Some(last) = remember {
-                    println!("{:?}", (self.comparator)(last, value));
+                    let cmp = (self.comparator)(last, value);
+                    let icmp = (self.comparator)(value, last);
+                    if cmp != icmp {
+                        println!("{:?}", cmp);
+                    } else {
+                        println!("{:?} =!= {:?}", cmp, icmp);
+                }
                 }
                 println!("{:?}", value);
                 remember = Some(value);
@@ -450,6 +457,13 @@ where
     // ensure order for the elements in range [from, to] is correct
     pub fn fix_rank_range(&mut self, from: Index, to: Index) -> Vec<IndexTransition> {
         let mut result = vec![];
+
+        // should we check from < to?
+        // let (from, to) = if from < to {
+        //     (from, to)
+        // } else {
+        //     (to, from)
+        // };
 
         // also check whether first element needs to be moved forward -> start one element early
         let mut current = self.prev_index(from).unwrap_or(from);
